@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sistema de Actividades Extracurriculares - ESEN">
+  <title>ESEN — Actividades Extracurriculares</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Fraunces:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<!-- ═══════════════════════ LOGIN ═══════════════════════ -->
+<div id="login-screen" class="screen active">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="brand">ESEN</div>
+      <p>Sistema de Actividades Extracurriculares</p>
+    </div>
+
+    <div class="login-tabs">
+      <button class="tab-btn active" onclick="switchTab('admin')">Administrador</button>
+      <button class="tab-btn" onclick="switchTab('student')">Estudiante</button>
+    </div>
+
+    <div id="error-box" class="error-msg">Usuario o contraseña incorrectos.</div>
+
+    <div class="form-group">
+      <label>Usuario</label>
+      <input type="text" id="login-user" placeholder="Ingresa tu usuario">
+    </div>
+    <div class="form-group">
+      <label>Contraseña</label>
+      <input type="password" id="login-pass" placeholder="••••••••">
+    </div>
+    <button class="btn-primary" onclick="doLogin()">Ingresar al sistema</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════ MAIN APP ═══════════════════════ -->
+<div id="main-screen" class="screen">
+
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">ESEN</div>
+      <div class="subtitle">Actividades Extracurriculares</div>
+    </div>
+
+    <div class="user-chip">
+      <div class="user-avatar" id="sidebar-avatar">AD</div>
+      <div class="user-info">
+        <div class="name" id="sidebar-name">Administrador</div>
+        <div class="role" id="sidebar-role">Administrador del Sistema</div>
+      </div>
+    </div>
+
+    <nav class="nav-section" id="nav-admin">
+      <div class="nav-label">Menú Principal</div>
+      <button class="nav-item active" onclick="showSection('dashboard')">
+        <span class="icon">📊</span> Dashboard
+      </button>
+      <button class="nav-item" onclick="showSection('activities')">
+        <span class="icon">🎓</span> Gestionar Actividades
+      </button>
+      <button class="nav-item" onclick="showSection('students')">
+        <span class="icon">👥</span> Estudiantes
+      </button>
+      <button class="nav-item" onclick="showSection('reports')">
+        <span class="icon">📄</span> Reportes
+      </button>
+    </nav>
+
+    <nav class="nav-section" id="nav-student" style="display:none">
+      <div class="nav-label">Mi Portal</div>
+      <button class="nav-item active" onclick="showSection('my-activities')">
+        <span class="icon">📋</span> Mis Actividades
+      </button>
+      <button class="nav-item" onclick="showSection('my-history')">
+        <span class="icon">⏱️</span> Mi Historial
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="doLogout()">
+        <span>🚪</span> Cerrar sesión
+      </button>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="topbar">
+      <div>
+        <h1 id="page-title">Dashboard</h1>
+        <p id="page-sub">Resumen general del sistema</p>
+      </div>
+      <div class="current-date" id="current-date"></div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- DASHBOARD -->
+      <div class="page-section active" id="section-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card green">
+            <div class="stat-label">Total Actividades</div>
+            <div class="stat-value" id="stat-total">0</div>
+            <div class="stat-sub">registradas</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-label">Estudiantes</div>
+            <div class="stat-value" id="stat-students">0</div>
+            <div class="stat-sub">participantes</div>
+          </div>
+          <div class="stat-card amber">
+            <div class="stat-label">Horas Totales</div>
+            <div class="stat-value" id="stat-hours">0</div>
+            <div class="stat-sub">acumuladas</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Categorías</div>
+            <div class="stat-value" id="stat-cats">5</div>
+            <div class="stat-sub">tipos de actividad</div>
+          </div>
+        </div>
+        <div class="section-header">
+          <h2>Actividades Recientes</h2>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Actividad</th><th>Categoría</th><th>Fecha</th><th>Horas</th><th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="dashboard-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- GESTIONAR ACTIVIDADES -->
+      <div class="page-section" id="section-activities">
+        <div class="section-header">
+          <h2>Registro de Actividades Extracurriculares</h2>
+          <button class="btn-add" onclick="openModal('add')">
+            <span>➕</span> Nueva Actividad
+          </button>
+        </div>
+        <div class="table-wrapper">
+          <div class="table-filters">
+            <input class="filter-input" type="text" id="filter-search" placeholder="🔍  Buscar actividad..." oninput="renderTable()">
+            <select class="filter-input" id="filter-cat" onchange="renderTable()">
+              <option value="">Todas las categorías</option>
+              <option>Cultural</option><option>Deportivo</option><option>Académico</option><option>Social</option><option>Voluntariado</option>
+            </select>
+            <select class="filter-input" id="filter-year" onchange="renderTable()">
+              <option value="">Todos los años</option>
+              <option>2024</option><option>2025</option>
+            </select>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Actividad</th><th>Categoría</th><th>Fecha</th>
+                <th>N° Resolución</th><th>Horas</th><th>Estudiantes</th><th>Estado</th><th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="activities-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ESTUDIANTES -->
+      <div class="page-section" id="section-students">
+        <div class="section-header">
+          <h2>Relación de Estudiantes por Actividad</h2>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Código</th><th>Nombre</th><th>DNI</th><th>Escuela</th>
+                <th>Actividades</th><th>Total Horas</th><th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="students-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- REPORTES -->
+      <div class="page-section" id="section-reports">
+        <div class="section-header">
+          <h2>Generador de Reportes</h2>
+          <button class="btn-add" onclick="generateReport()">
+            <span>📥</span> Generar Reporte
+          </button>
+        </div>
+        <div class="form-row" style="margin-bottom:24px">
+          <div class="form-group">
+            <label>Filtrar por categoría</label>
+            <select id="rep-cat">
+              <option value="">Todas</option>
+              <option>Cultural</option><option>Deportivo</option><option>Académico</option><option>Social</option><option>Voluntariado</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Filtrar por año</label>
+            <select id="rep-year">
+              <option value="">Todos</option><option>2024</option><option>2025</option>
+            </select>
+          </div>
+        </div>
+        <div id="report-output"></div>
+      </div>
+
+      <!-- MIS ACTIVIDADES -->
+      <div class="page-section" id="section-my-activities">
+        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+          <div class="stat-card green">
+            <div class="stat-label">Mis Actividades</div>
+            <div class="stat-value" id="my-count">0</div>
+            <div class="stat-sub">participaciones</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-label">Horas Acumuladas</div>
+            <div class="stat-value" id="my-hours">0</div>
+            <div class="stat-sub">horas validadas</div>
+          </div>
+          <div class="stat-card amber">
+            <div class="stat-label">Última Actividad</div>
+            <div class="stat-value" id="my-last" style="font-size:15px;margin-top:4px">—</div>
+            <div class="stat-sub">registrada</div>
+          </div>
+        </div>
+        <div class="section-header"><h2>Actividades en las que participé</h2></div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Actividad</th><th>Categoría</th><th>Fecha</th>
+                <th>N° Resolución</th><th>Horas</th><th>Validación</th>
+              </tr>
+            </thead>
+            <tbody id="my-activities-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- MI HISTORIAL -->
+      <div class="page-section" id="section-my-history">
+        <div class="section-header"><h2>Historial de Participación</h2></div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th><th>Actividad</th><th>Tipo</th>
+                <th>Horas</th><th>Resolución</th><th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="my-history-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- MODAL ACTIVIDAD -->
+<div class="modal-overlay" id="modal-activity">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Nueva Actividad</div>
+      <button class="btn-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nombre de la Actividad *</label>
+        <input type="text" id="f-name" placeholder="Ej: Festival de Arte 2025">
+      </div>
+      <div class="form-group">
+        <label>Categoría *</label>
+        <select id="f-cat">
+          <option value="">Seleccionar...</option>
+          <option>Cultural</option><option>Deportivo</option><option>Académico</option><option>Social</option><option>Voluntariado</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Fecha *</label>
+        <input type="date" id="f-date">
+      </div>
+      <div class="form-group">
+        <label>N° Resolución *</label>
+        <input type="text" id="f-resolucion" placeholder="Ej: RES-2025-045">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Horas Acumuladas *</label>
+        <input type="number" id="f-horas" placeholder="Ej: 8" min="1" max="200">
+      </div>
+      <div class="form-group">
+        <label>Estado</label>
+        <select id="f-status">
+          <option value="Activo">Activo</option>
+          <option value="Inactivo">Inactivo</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Descripción</label>
+      <textarea id="f-desc" rows="3" placeholder="Describe brevemente la actividad..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Estudiantes Participantes</label>
+      <div class="student-checkboxes" id="student-checkboxes"></div>
+    </div>
+    <div id="modal-error" class="error-msg">Por favor completa todos los campos obligatorios.</div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn-primary" style="width:auto;padding:10px 24px" onclick="saveActivity()">Guardar Actividad</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONFIRMAR ELIMINAR -->
+<div class="modal-overlay" id="modal-confirm">
+  <div class="confirm-modal">
+    <div class="icon-big">🗑️</div>
+    <h3>Eliminar Actividad</h3>
+    <p>¿Estás seguro de que deseas eliminar esta actividad? Esta acción no se puede deshacer.</p>
+    <div class="confirm-actions">
+      <button class="btn-secondary" onclick="closeConfirm()">Cancelar</button>
+      <button class="btn-danger" onclick="confirmDelete()">Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
